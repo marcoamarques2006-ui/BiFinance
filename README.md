@@ -146,11 +146,11 @@ bifinance/
 
 ## Autor
 
-Seu Nome — [seu@email.com](mailto:seu@email.com)
+Marco Antonio Marques Monte — [marcoamarques2006@gmail.com](mailto:marcoamarques2006@gmail.com)
 
 ## Repositório
 
-[https://github.com/SEU_USUARIO/bifinance](https://github.com/SEU_USUARIO/bifinance)
+[https://github.com/marcoamarques2006-ui/BiFinance](https://github.com/marcoamarques2006-ui/BiFinance)
 
 ## Licença
 
