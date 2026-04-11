@@ -1,6 +1,6 @@
 # BiFinance 💰
 
-![CI](https://github.com/SEU_USUARIO/bifinance/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/marcoamarques2006-ui/BiFinance/actions/workflows/ci.yml/badge.svg)
 ![Versão](https://img.shields.io/badge/versão-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-green)
 ![Licença](https://img.shields.io/badge/licença-MIT-orange)
@@ -15,30 +15,33 @@ Milhões de brasileiros têm dificuldade de acompanhar para onde vai o dinheiro 
 
 ## Solução
 
-O **BiFinance** é uma aplicação desktop leve que permite registrar, categorizar e visualizar despesas em segundos — sem internet, sem cadastro, com dados armazenados localmente.
+O **BiFinance** é uma aplicação desktop leve que permite registrar, categorizar e visualizar receitas, despesas e investimentos em segundos — sem internet, sem cadastro, com dados armazenados localmente.
 
 ## Público-alvo
 
-Jovens adultos, estudantes e famílias que querem controlar gastos do dia a dia de forma simples e rápida.
+Jovens adultos, estudantes e famílias que querem controlar gastos, investimentos e metas financeiras de forma simples e rápida.
 
 ## Funcionalidades
 
-- Registrar despesas com descrição, valor, categoria e data
-- Dashboard com total acumulado, resumo mensal e breakdown por categoria com barras de progresso
-- Listagem completa de despesas com remoção individual
-- 8 categorias pré-definidas (Alimentação, Transporte, Moradia, Saúde, Educação, Lazer, Vestuário, Outros)
-- Alternância entre tema Dark / Light / System
+- **Dashboard** com KPIs de patrimônio, receita, gastos e proventos, além de gráficos de barras, rosca e comparativo com CDI
+- **Transações** — registro de receitas, despesas, compras/vendas de ativos e dividendos com validação de dados
+- **Investimentos** — carteira com custo médio ponderado, P&L não realizado e atualização de preço por ativo
+- **Dólar** — registro de compras em USD com IOF + spread, custo médio efetivo e P&L vs. taxa atual
+- **Metas** — criação e acompanhamento de metas financeiras com barra de progresso
+- **Relatórios** — saldo acumulado, histórico mensal e análise de "pequenos vícios" com projeção anual
+- **Configurações** — taxa CDI e IOF padrão configuráveis
 - Dados persistidos localmente em JSON (`~/.bifinance/data.json`)
 
 ## Tecnologias
 
-| Ferramenta       | Uso                        |
-|------------------|----------------------------|
-| Python 3.11+     | Linguagem principal        |
-| customtkinter    | Interface gráfica moderna  |
-| pytest           | Testes automatizados       |
-| ruff             | Linting e análise estática |
-| GitHub Actions   | Integração contínua (CI)   |
+| Ferramenta       | Uso                          |
+|------------------|------------------------------|
+| Python 3.11+     | Linguagem principal          |
+| customtkinter    | Interface gráfica moderna    |
+| matplotlib       | Gráficos e visualizações     |
+| pytest           | Testes automatizados         |
+| ruff             | Linting e análise estática   |
+| GitHub Actions   | Integração contínua (CI)     |
 
 ---
 
@@ -53,8 +56,8 @@ Jovens adultos, estudantes e famílias que querem controlar gastos do dia a dia 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/SEU_USUARIO/bifinance.git
-cd bifinance
+git clone https://github.com/marcoamarques2006-ui/BiFinance.git
+cd BiFinance
 
 # (Opcional) Crie um ambiente virtual
 python -m venv .venv
@@ -92,7 +95,7 @@ pytest
 Saída esperada:
 
 ```
-========================= 20 passed in 0.12s =========================
+98 passed in 0.60s
 ```
 
 ---
@@ -114,20 +117,25 @@ ruff check . --fix
 ## Estrutura do Projeto
 
 ```
-bifinance/
+BiFinance/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # Pipeline de CI
+│       └── ci.yml              # Pipeline de CI
+├── scripts/
+│   └── seed_demo.py            # Script de dados de demonstração
 ├── src/
 │   └── bifinance/
-│       ├── __init__.py     # Versão do pacote
-│       ├── __main__.py     # Ponto de entrada
-│       ├── app.py          # Interface gráfica
-│       ├── models.py       # Modelos de dados
-│       └── storage.py      # Persistência JSON
+│       ├── __init__.py         # Versão do pacote
+│       ├── __main__.py         # Ponto de entrada
+│       ├── app.py              # Interface gráfica (7 views)
+│       ├── charts.py           # Gráficos matplotlib
+│       ├── finance.py          # Lógica de negócio e cálculos
+│       ├── models.py           # Modelos de dados
+│       └── storage.py          # Persistência JSON
 ├── tests/
-│   ├── test_models.py
-│   └── test_storage.py
+│   ├── test_finance.py         # 41 testes de lógica financeira
+│   ├── test_models.py          # 35 testes de modelos
+│   └── test_storage.py         # 22 testes de persistência
 ├── .gitignore
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md

@@ -9,7 +9,7 @@ description = "Gerenciador de finanças pessoais com interface gráfica moderna"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
-authors = [{ name = "Seu Nome" }]
+authors = [{ name = "Marco Antonio Marques Monte", email = "marcoamarques2006@gmail.com" }]
 keywords = ["finanças", "pessoal", "despesas", "controle", "orçamento"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
