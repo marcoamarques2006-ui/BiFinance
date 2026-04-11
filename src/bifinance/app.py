@@ -532,12 +532,12 @@ class BiFinanceApp(ctk.CTk):
         scroll = self._scroll(self._content)
         scroll.grid_columnconfigure(0, weight=1)
 
-        txs      = self._s.load_transactions()
-        prices   = self._s.load_prices()
+        txs       = self._s.load_transactions()
+        prices    = self._s.load_prices()
         positions = fin.portfolio_positions(txs)
-        with_pl  = fin.with_pnl(positions, prices)
+        with_pl   = fin.with_pnl(positions, prices)
 
-        total_cost = sum(p["total_cost"] for p in positions.values())
+        total_cost = fin.total_invested_cost(txs)
         total_mkt  = sum(p["market_value"] for p in with_pl.values() if p["current_price"] > 0)
         total_pnl  = total_mkt - total_cost if total_mkt > 0 else 0.0
         divs       = fin.total_dividends(txs)
@@ -851,19 +851,13 @@ class BiFinanceApp(ctk.CTk):
             except ValueError as exc:
                 gmsg.configure(text=str(exc), text_color=C["red"])
 
-        ctk.CTkButton(
-            form_card, text="Criar Meta", height=36, corner_radius=6,
-            font=ctk.CTkFont(size=12, weight="bold"),
-            fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
-            command=_add_goal,
-        ).grid(row=3, column=5, padx=(8, 16)) if False else None  # handled below
         form_card.grid_columnconfigure(5, weight=0)
         ctk.CTkButton(
             form_card, text="Criar Meta", height=36, corner_radius=6,
             font=ctk.CTkFont(size=12, weight="bold"),
             fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
             command=_add_goal,
-        ).grid(row=3, column=4, padx=(8, 16), sticky="e")
+        ).grid(row=3, column=5, padx=(8, 16), sticky="e")
 
         # Goals list
         goals = self._s.load_goals()

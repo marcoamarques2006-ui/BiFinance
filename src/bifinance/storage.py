@@ -7,13 +7,15 @@ from pathlib import Path
 
 from bifinance.models import DollarEntry, Goal, Settings, Transaction
 
-_EMPTY: dict = {
-    "transactions": [],
-    "dollar_entries": [],
-    "goals": [],
-    "settings": {},
-    "current_prices": {},
-}
+
+def _empty() -> dict:
+    return {
+        "transactions": [],
+        "dollar_entries": [],
+        "goals": [],
+        "settings": {},
+        "current_prices": {},
+    }
 
 
 class Storage:
@@ -23,7 +25,7 @@ class Storage:
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if not self.path.exists():
-            self._write(_EMPTY.copy())
+            self._write(_empty())
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
@@ -31,7 +33,7 @@ class Storage:
         raw = json.loads(self.path.read_text(encoding="utf-8"))
         if isinstance(raw, list):
             # migrate from legacy format (plain list of expenses)
-            migrated = _EMPTY.copy()
+            migrated = _empty()
             self._write(migrated)
             return migrated
         return raw

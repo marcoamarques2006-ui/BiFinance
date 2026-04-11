@@ -98,19 +98,21 @@ def expenses_by_category(txs: list[Transaction], year: int, month: int) -> dict[
 def monthly_history(txs: list[Transaction], n: int = 6) -> list[dict]:
     """Histórico de receita vs despesa real para N meses (mais antigo → mais recente)."""
     today = date.today()
-    result = []
-    for i in range(n - 1, -1, -1):
-        total_months = today.month - i
-        if total_months <= 0:
-            y, m = today.year - 1, today.month - i + 12
-        else:
-            y, m = today.year, total_months
-        result.append({
-            "month": f"{y:04d}-{m:02d}",
+    months: list[tuple[int, int]] = []
+    y, m = today.year, today.month
+    for _ in range(n):
+        months.append((y, m))
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    return [
+        {
+            "month":    f"{y:04d}-{m:02d}",
             "income":   monthly_income(txs, y, m),
             "expenses": monthly_expenses(txs, y, m),
-        })
-    return result
+        }
+        for y, m in reversed(months)
+    ]
 
 
 # ── Portfolio de Investimentos ────────────────────────────────────────────────
