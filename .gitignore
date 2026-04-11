@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Ambientes virtuais
+.env
+.venv
+env/
+venv/
+
+# Testes e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Linter
+.ruff_cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dados do app (gerados em runtime)
+.bifinance/
