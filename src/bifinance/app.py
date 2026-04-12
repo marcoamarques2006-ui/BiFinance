@@ -79,6 +79,7 @@ class BiFinanceApp(ctk.CTk):
         self.minsize(900, 600)
         self.configure(fg_color=C["bg"])
         self._nav_btns: dict[str, ctk.CTkButton] = {}
+        self._tx_filter: str = "Todos"
         self._page_title = ctk.StringVar(value="Dashboard")
         self._build_layout()
         self._nav_to("dashboard")
@@ -498,7 +499,6 @@ class BiFinanceApp(ctk.CTk):
 
         # ── List ──────────────────────────────────────────────────────────────
         txs = self._s.load_transactions()
-        n   = len(txs)
         list_card = self._card(outer, row=1, column=0, sticky="nsew")
         list_card.grid_columnconfigure(0, weight=1)
         list_card.grid_rowconfigure(1, weight=1)
@@ -508,8 +508,18 @@ class BiFinanceApp(ctk.CTk):
         hdr.grid_columnconfigure(0, weight=1)
         self._lbl(hdr, "Histórico de Transações", size=13, weight="bold").grid(
             row=0, column=0, sticky="w", padx=16, pady=(14, 14))
-        self._lbl(hdr, f"{n} registros", size=11, color=C["muted"]).grid(
-            row=0, column=1, sticky="e", padx=16)
+        ctk.CTkOptionMenu(
+            hdr, values=["Todos"] + list(TX_LABELS.keys()),
+            variable=ctk.StringVar(value=self._tx_filter),
+            height=28, width=150, corner_radius=6,
+            fg_color=C["muted_bg"], button_color=C["border"],
+            text_color=C["text"], dropdown_fg_color=C["card"],
+            dropdown_text_color=C["text"],
+            command=lambda v: (setattr(self, "_tx_filter", v), self._nav_to("transactions")),
+        ).grid(row=0, column=1, padx=8)
+        txs_show = [t for t in txs if self._tx_filter == "Todos" or t.type == self._tx_filter]
+        self._lbl(hdr, f"{len(txs_show)} registros", size=11, color=C["muted"]).grid(
+            row=0, column=2, sticky="e", padx=16)
         self._sep(list_card, 1)
 
         table = ctk.CTkScrollableFrame(list_card, fg_color=C["card"],
@@ -517,11 +527,12 @@ class BiFinanceApp(ctk.CTk):
         table.grid(row=2, column=0, sticky="nsew")
         table.grid_columnconfigure(0, weight=1)
 
-        if not txs:
+        n = len(txs_show)
+        if not txs_show:
             self._lbl(table, "Nenhuma transação ainda.", color=C["muted"]).grid(
                 row=0, column=0, pady=40)
             return
-        for i, t in enumerate(sorted(txs, key=lambda x: x.date, reverse=True)):
+        for i, t in enumerate(sorted(txs_show, key=lambda x: x.date, reverse=True)):
             self._tx_row(table, t, row=i * 2)
             if i < n - 1:
                 self._sep(table, i * 2 + 1, padx=16)
