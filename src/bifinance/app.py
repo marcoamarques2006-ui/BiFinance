@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import csv
 from datetime import date
+from tkinter import filedialog
 
 import customtkinter as ctk
 
@@ -519,7 +521,14 @@ class BiFinanceApp(ctk.CTk):
         ).grid(row=0, column=1, padx=8)
         txs_show = [t for t in txs if self._tx_filter == "Todos" or t.type == self._tx_filter]
         self._lbl(hdr, f"{len(txs_show)} registros", size=11, color=C["muted"]).grid(
-            row=0, column=2, sticky="e", padx=16)
+            row=0, column=2, sticky="e", padx=8)
+        ctk.CTkButton(
+            hdr, text="Exportar CSV", height=28, corner_radius=6, width=110,
+            font=ctk.CTkFont(size=11), fg_color=C["muted_bg"],
+            border_color=C["border"], border_width=1,
+            text_color=C["text"], hover_color=C["border"],
+            command=lambda: self._export_csv(txs),
+        ).grid(row=0, column=3, padx=(0, 16))
         self._sep(list_card, 1)
 
         table = ctk.CTkScrollableFrame(list_card, fg_color=C["card"],
@@ -1088,6 +1097,24 @@ class BiFinanceApp(ctk.CTk):
             fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
             command=_save,
         ).grid(row=9, column=0, sticky="ew", padx=24, pady=(12, 24))
+
+
+    def _export_csv(self, txs: list[Transaction]) -> None:
+        path = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV", "*.csv")],
+            initialfile="bifinance_transacoes.csv",
+        )
+        if not path:
+            return
+        with open(path, "w", newline="", encoding="utf-8-sig") as f:
+            w = csv.writer(f)
+            w.writerow(["Data", "Tipo", "Descrição", "Valor (R$)", "Categoria", "Ticker"])
+            for t in sorted(txs, key=lambda x: x.date, reverse=True):
+                w.writerow([
+                    t.date, TX_LABELS.get(t.type, t.type), t.description,
+                    f"{t.amount:.2f}", t.category or "", t.ticker or "",
+                ])
 
 
 def main() -> None:
