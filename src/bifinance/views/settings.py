@@ -66,30 +66,47 @@ def render(app) -> None:
     ).grid(row=9, column=0, sticky="ew", padx=24, pady=(12, 0))
 
     # ── PIN de acesso ──────────────────────────────────────────────────────────
+    current_hash = app._s.load_pin_hash()
     app._sep(card, 10)
     app._lbl(card, "PIN de Acesso", size=12, weight="bold").grid(
         row=11, column=0, sticky="w", padx=24, pady=(16, 4))
-    app._lbl(card, "Proteja o aplicativo com um PIN de 4 ou mais dígitos.",
-              size=11, color=C["muted"]).grid(row=12, column=0, sticky="w", padx=24, pady=(0, 6))
+    subtitle = "Altere o PIN atual." if current_hash else "Proteja o aplicativo com um PIN de 4 ou mais dígitos."
+    app._lbl(card, subtitle, size=11, color=C["muted"]).grid(
+        row=12, column=0, sticky="w", padx=24, pady=(0, 6))
+
+    if current_hash:
+        old_pin_e = ctk.CTkEntry(card, height=40, corner_radius=6, show="*",
+                                  border_color=C["border"], fg_color=C["card"],
+                                  text_color=C["text"], placeholder_text="PIN atual")
+        old_pin_e.grid(row=13, column=0, sticky="ew", padx=24, pady=(0, 6))
+
     pin_e = ctk.CTkEntry(card, height=40, corner_radius=6, show="*",
                           border_color=C["border"], fg_color=C["card"],
                           text_color=C["text"], placeholder_text="Novo PIN")
-    pin_e.grid(row=13, column=0, sticky="ew", padx=24)
+    pin_e.grid(row=14, column=0, sticky="ew", padx=24)
     pmsg = ctk.CTkLabel(card, text="", font=ctk.CTkFont(size=12), text_color=C["red"])
-    pmsg.grid(row=14, column=0, padx=24, pady=(8, 0))
+    pmsg.grid(row=15, column=0, padx=24, pady=(8, 0))
 
     def _set_pin() -> None:
-        raw = pin_e.get().strip()
-        if len(raw) < 4:
-            pmsg.configure(text="PIN deve ter ao menos 4 dígitos.", text_color=C["red"])
+        new_raw = pin_e.get().strip()
+        if current_hash:
+            old_raw = old_pin_e.get().strip()
+            if hashlib.sha256(old_raw.encode()).hexdigest() != current_hash:
+                pmsg.configure(text="PIN atual incorreto.", text_color=C["red"])
+                return
+        if len(new_raw) < 4:
+            pmsg.configure(text="Novo PIN deve ter ao menos 4 dígitos.", text_color=C["red"])
             return
-        app._s.save_pin_hash(hashlib.sha256(raw.encode()).hexdigest())
-        pmsg.configure(text="PIN definido com sucesso.", text_color=C["green"])
+        app._s.save_pin_hash(hashlib.sha256(new_raw.encode()).hexdigest())
+        pmsg.configure(text="PIN definido. Bloqueando…", text_color=C["green"])
+        if current_hash:
+            old_pin_e.delete(0, "end")
         pin_e.delete(0, "end")
+        app.after(800, app._lock)
 
     ctk.CTkButton(
         card, text="Definir PIN", height=42, corner_radius=6,
         font=ctk.CTkFont(size=13, weight="bold"),
         fg_color=C["blue"], hover_color="#2563eb", text_color="#ffffff",
         command=_set_pin,
-    ).grid(row=15, column=0, sticky="ew", padx=24, pady=(8, 24))
+    ).grid(row=16, column=0, sticky="ew", padx=24, pady=(8, 24))

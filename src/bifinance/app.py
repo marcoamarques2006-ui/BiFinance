@@ -88,6 +88,15 @@ class BiFinanceApp(ctk.CTk):
                       font=ctk.CTkFont(size=9), text_color=C["sidebar_lbl"]).place(x=58, y=37)
         ctk.CTkFrame(sb, height=1, fg_color=C["sidebar_act"]).pack(fill="x")
 
+        bottom = ctk.CTkFrame(sb, fg_color="transparent")
+        bottom.pack(side="bottom", fill="x", padx=8, pady=(0, 12))
+        ctk.CTkButton(
+            bottom, text="🔒  Bloquear", height=36, anchor="w",
+            fg_color="transparent", text_color=C["sidebar_tx"],
+            hover_color=C["sidebar_act"], font=ctk.CTkFont(size=12), corner_radius=6,
+            command=self._lock,
+        ).pack(fill="x")
+
         nav = ctk.CTkFrame(sb, fg_color="transparent")
         nav.pack(fill="both", expand=True, padx=8, pady=10)
 
@@ -219,6 +228,46 @@ class BiFinanceApp(ctk.CTk):
                     self._s.remove_transaction(tid), self._nav_to("transactions")
                 ),
             ).grid(row=0, column=4, padx=(8, 16))
+
+    def _lock(self) -> None:
+        pin_hash = self._s.load_pin_hash()
+        if not pin_hash:
+            return
+        self.withdraw()
+        win = ctk.CTkToplevel(self)
+        win.title("BiFinance — Bloqueado")
+        win.geometry("340x230")
+        win.resizable(False, False)
+        win.configure(fg_color=C["bg"])
+        win.grab_set()
+        win.protocol("WM_DELETE_WINDOW", lambda: (win.destroy(), self.destroy()))
+
+        ctk.CTkLabel(win, text="BiFinance",
+                      font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"),
+                      text_color=C["text"]).pack(pady=(40, 4))
+        ctk.CTkLabel(win, text="Digite seu PIN para continuar",
+                      font=ctk.CTkFont(size=12), text_color=C["muted"]).pack(pady=(0, 16))
+        pin_e = ctk.CTkEntry(win, show="*", width=220, height=42, corner_radius=6,
+                              border_color=C["border"], fg_color=C["card"],
+                              text_color=C["text"], placeholder_text="PIN")
+        pin_e.pack()
+        pin_e.focus()
+        msg = ctk.CTkLabel(win, text="", font=ctk.CTkFont(size=11), text_color=C["red"])
+        msg.pack(pady=4)
+
+        def _check() -> None:
+            if hashlib.sha256(pin_e.get().encode()).hexdigest() == pin_hash:
+                win.destroy()
+                self.deiconify()
+            else:
+                msg.configure(text="PIN incorreto.")
+                pin_e.delete(0, "end")
+
+        ctk.CTkButton(win, text="Entrar", width=220, height=42, corner_radius=6,
+                       font=ctk.CTkFont(size=13, weight="bold"),
+                       fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
+                       command=_check).pack()
+        pin_e.bind("<Return>", lambda _: _check())
 
     def _export_csv(self, txs: list[Transaction]) -> None:
         path = filedialog.asksaveasfilename(
