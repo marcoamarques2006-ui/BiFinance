@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from datetime import date
 from tkinter import filedialog
 
@@ -1096,7 +1097,35 @@ class BiFinanceApp(ctk.CTk):
             font=ctk.CTkFont(size=13, weight="bold"),
             fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
             command=_save,
-        ).grid(row=9, column=0, sticky="ew", padx=24, pady=(12, 24))
+        ).grid(row=9, column=0, sticky="ew", padx=24, pady=(12, 0))
+
+        self._sep(card, 10)
+        self._lbl(card, "PIN de Acesso", size=12, weight="bold").grid(
+            row=11, column=0, sticky="w", padx=24, pady=(16, 4))
+        self._lbl(card, "Proteja o aplicativo com um PIN de 4 ou mais dígitos.",
+                   size=11, color=C["muted"]).grid(row=12, column=0, sticky="w", padx=24, pady=(0, 6))
+        pin_e = ctk.CTkEntry(card, height=40, corner_radius=6, show="*",
+                              border_color=C["border"], fg_color=C["card"],
+                              text_color=C["text"], placeholder_text="Novo PIN")
+        pin_e.grid(row=13, column=0, sticky="ew", padx=24)
+        pmsg = ctk.CTkLabel(card, text="", font=ctk.CTkFont(size=12), text_color=C["red"])
+        pmsg.grid(row=14, column=0, padx=24, pady=(8, 0))
+
+        def _set_pin() -> None:
+            raw = pin_e.get().strip()
+            if len(raw) < 4:
+                pmsg.configure(text="PIN deve ter ao menos 4 dígitos.", text_color=C["red"])
+                return
+            self._s.save_pin_hash(hashlib.sha256(raw.encode()).hexdigest())
+            pmsg.configure(text="PIN definido com sucesso.", text_color=C["green"])
+            pin_e.delete(0, "end")
+
+        ctk.CTkButton(
+            card, text="Definir PIN", height=42, corner_radius=6,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            fg_color=C["blue"], hover_color="#2563eb", text_color="#ffffff",
+            command=_set_pin,
+        ).grid(row=15, column=0, sticky="ew", padx=24, pady=(8, 24))
 
 
     def _export_csv(self, txs: list[Transaction]) -> None:
@@ -1117,6 +1146,47 @@ class BiFinanceApp(ctk.CTk):
                 ])
 
 
+def _show_login(pin_hash: str) -> bool:
+    win = ctk.CTk()
+    win.title("BiFinance")
+    win.geometry("340x230")
+    win.resizable(False, False)
+    win.configure(fg_color=C["bg"])
+    authenticated = [False]
+
+    ctk.CTkLabel(win, text="BiFinance",
+                  font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"),
+                  text_color=C["text"]).pack(pady=(40, 4))
+    ctk.CTkLabel(win, text="Digite seu PIN para continuar",
+                  font=ctk.CTkFont(size=12), text_color=C["muted"]).pack(pady=(0, 16))
+    pin_e = ctk.CTkEntry(win, show="*", width=220, height=42, corner_radius=6,
+                          border_color=C["border"], fg_color=C["card"],
+                          text_color=C["text"], placeholder_text="PIN")
+    pin_e.pack()
+    msg = ctk.CTkLabel(win, text="", font=ctk.CTkFont(size=11), text_color=C["red"])
+    msg.pack(pady=4)
+
+    def _check() -> None:
+        if hashlib.sha256(pin_e.get().encode()).hexdigest() == pin_hash:
+            authenticated[0] = True
+            win.destroy()
+        else:
+            msg.configure(text="PIN incorreto.")
+            pin_e.delete(0, "end")
+
+    ctk.CTkButton(win, text="Entrar", width=220, height=42, corner_radius=6,
+                   font=ctk.CTkFont(size=13, weight="bold"),
+                   fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
+                   command=_check).pack()
+    pin_e.bind("<Return>", lambda _: _check())
+    win.mainloop()
+    return authenticated[0]
+
+
 def main() -> None:
-    app = BiFinanceApp()
+    storage = Storage()
+    pin_hash = storage.load_pin_hash()
+    if pin_hash and not _show_login(pin_hash):
+        return
+    app = BiFinanceApp(storage)
     app.mainloop()

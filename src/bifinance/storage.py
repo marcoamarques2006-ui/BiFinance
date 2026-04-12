@@ -131,3 +131,13 @@ class Storage:
         raw = self._read()
         raw["current_prices"] = prices
         self._write(raw)
+
+    # ── PIN ───────────────────────────────────────────────────────────────────
+
+    def load_pin_hash(self) -> str:
+        return self._read().get("pin_hash", "")
+
+    def save_pin_hash(self, h: str) -> None:
+        raw = self._read()
+        raw["pin_hash"] = h
+        self._write(raw)
