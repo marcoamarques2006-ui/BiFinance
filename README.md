@@ -5,6 +5,8 @@
 ![Python](https://img.shields.io/badge/python-3.11+-green)
 ![Licença](https://img.shields.io/badge/licença-MIT-orange)
 
+**🌐 Deploy (versão web):** [bifinance.streamlit.app](https://bifinance.streamlit.app)
+
 **Gerenciador de finanças pessoais com interface gráfica moderna.**
 
 ---
@@ -39,6 +41,8 @@ Jovens adultos, estudantes e famílias que querem controlar gastos, investimento
 | Python 3.11+     | Linguagem principal          |
 | customtkinter    | Interface gráfica moderna    |
 | matplotlib       | Gráficos e visualizações     |
+| requests         | Consumo de API (cotação USD) |
+| streamlit        | Dashboard web (deploy)       |
 | pytest           | Testes automatizados         |
 | ruff             | Linting e análise estática   |
 | GitHub Actions   | Integração contínua (CI)     |
@@ -95,7 +99,7 @@ pytest
 Saída esperada:
 
 ```
-98 passed in 0.60s
+101 passed in 0.60s
 ```
 
 ---
@@ -114,6 +118,21 @@ ruff check . --fix
 
 ---
 
+## Deploy
+
+A versão web do BiFinance está publicada em:
+
+**[bifinance.streamlit.app](https://bifinance.streamlit.app)**
+
+Exibe a cotação USD/BRL em tempo real (via [AwesomeAPI](https://economia.awesomeapi.com.br)) e o resumo financeiro. Para rodar o dashboard localmente:
+
+```bash
+pip install -r requirements-web.txt
+streamlit run streamlit_app.py
+```
+
+---
+
 ## Estrutura do Projeto
 
 ```
@@ -127,6 +146,7 @@ BiFinance/
 │   └── bifinance/
 │       ├── __init__.py         # Versão do pacote
 │       ├── __main__.py         # Ponto de entrada
+│       ├── api_client.py       # Consumo da API de cotações (AwesomeAPI)
 │       ├── app.py              # Interface gráfica (7 views)
 │       ├── charts.py           # Gráficos matplotlib
 │       ├── finance.py          # Lógica de negócio e cálculos
@@ -134,6 +154,7 @@ BiFinance/
 │       └── storage.py          # Persistência JSON
 ├── tests/
 │   ├── test_finance.py         # 41 testes de lógica financeira
+│   ├── test_integration.py     # 3 testes de integração (API)
 │   ├── test_models.py          # 35 testes de modelos
 │   └── test_storage.py         # 22 testes de persistência
 ├── .gitignore
@@ -143,7 +164,9 @@ BiFinance/
 ├── README.md
 ├── VERSION
 ├── pyproject.toml
-└── requirements.txt
+├── requirements.txt
+├── requirements-web.txt        # Dependências para deploy web
+└── streamlit_app.py            # Dashboard web (Streamlit)
 ```
 
 ---

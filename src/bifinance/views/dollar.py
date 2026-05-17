@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import threading
 from datetime import date
 
 import customtkinter as ctk
 
-from bifinance import finance as fin
+from bifinance import api_client, finance as fin
 from bifinance.models import DollarEntry
 from bifinance.theme import C
 
@@ -28,10 +29,21 @@ def render(app) -> None:
               size=13, weight="bold").grid(row=0, column=0, columnspan=5,
                                             sticky="w", padx=16, pady=(14, 10))
     app._sep(rate_card, 1)
-    rate_e = ctk.CTkEntry(rate_card, height=38, corner_radius=6,
+    fetch_frame = ctk.CTkFrame(rate_card, fg_color="transparent")
+    fetch_frame.grid(row=2, column=0, sticky="ew", padx=12, pady=10)
+    fetch_frame.grid_columnconfigure(0, weight=1)
+
+    rate_e = ctk.CTkEntry(fetch_frame, height=38, corner_radius=6,
                            border_color=C["border"], fg_color=C["card"],
                            text_color=C["text"], placeholder_text="Ex: 5,85")
-    rate_e.grid(row=2, column=0, sticky="ew", padx=12, pady=10)
+    rate_e.grid(row=0, column=0, sticky="ew")
+
+    fetch_btn = ctk.CTkButton(
+        fetch_frame, text="Buscar Cotação", height=30, corner_radius=6,
+        font=ctk.CTkFont(size=11),
+        fg_color=C["text"], hover_color="#374151", text_color="#ffffff",
+    )
+    fetch_btn.grid(row=1, column=0, sticky="ew", pady=(4, 0))
 
     kpi_frame = ctk.CTkFrame(rate_card, fg_color="transparent")
     kpi_frame.grid(row=2, column=1, columnspan=4, sticky="ew", padx=8)
@@ -68,6 +80,23 @@ def render(app) -> None:
 
     rate_e.bind("<Return>",   _calc_pnl)
     rate_e.bind("<FocusOut>", _calc_pnl)
+
+    def _fetch_rate() -> None:
+        fetch_btn.configure(text="Buscando…", state="disabled")
+
+        def _task() -> None:
+            rate = api_client.fetch_usd_brl()
+            if rate is not None:
+                rate_e.delete(0, "end")
+                rate_e.insert(0, f"{rate:.4f}")
+                _calc_pnl()
+            else:
+                pnl_lbl.configure(text="Falha ao buscar cotação", text_color=C["red"])
+            fetch_btn.configure(text="Buscar Cotação", state="normal")
+
+        threading.Thread(target=_task, daemon=True).start()
+
+    fetch_btn.configure(command=_fetch_rate)
 
     # ── Formulário de compra ───────────────────────────────────────────────────
     form_card = app._card(outer, row=1, column=0, sticky="ew", pady=(0, 16))
