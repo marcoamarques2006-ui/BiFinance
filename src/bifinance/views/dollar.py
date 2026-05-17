@@ -7,7 +7,8 @@ from datetime import date
 
 import customtkinter as ctk
 
-from bifinance import api_client, finance as fin
+from bifinance import api_client
+from bifinance import finance as fin
 from bifinance.models import DollarEntry
 from bifinance.theme import C
 
