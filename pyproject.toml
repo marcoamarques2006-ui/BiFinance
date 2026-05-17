@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Topic :: Office/Business :: Financial",
 ]
-dependencies = ["customtkinter>=5.2.2", "matplotlib>=3.8"]
+dependencies = ["customtkinter>=5.2.2", "matplotlib>=3.8", "requests>=2.31"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.4"]
