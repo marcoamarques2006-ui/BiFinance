@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.11+-green)
 ![Licença](https://img.shields.io/badge/licença-MIT-orange)
 
-**🌐 Deploy (versão web):** [bifinance.streamlit.app](https://bifinance.streamlit.app)
+**🌐 Deploy (versão web):** [bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app](https://bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app)
 
 **Gerenciador de finanças pessoais com interface gráfica moderna.**
 
@@ -122,7 +122,7 @@ ruff check . --fix
 
 A versão web do BiFinance está publicada em:
 
-**[bifinance.streamlit.app](https://bifinance.streamlit.app)**
+**[bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app](https://bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app)**
 
 Exibe a cotação USD/BRL em tempo real (via [AwesomeAPI](https://economia.awesomeapi.com.br)) e o resumo financeiro. Para rodar o dashboard localmente:
 

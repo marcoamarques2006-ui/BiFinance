@@ -7,10 +7,13 @@ import requests
 _USD_BRL_URL = "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 
 
-def fetch_usd_brl(timeout: int = 5) -> float | None:
+_HEADERS = {"User-Agent": "BiFinance/1.0"}
+
+
+def fetch_usd_brl(timeout: int = 10) -> float | None:
     """Retorna cotação atual USD/BRL (bid) ou None em caso de falha."""
     try:
-        resp = requests.get(_USD_BRL_URL, timeout=timeout)
+        resp = requests.get(_USD_BRL_URL, timeout=timeout, headers=_HEADERS)
         resp.raise_for_status()
         return float(resp.json()["USDBRL"]["bid"])
     except Exception:
