@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bifinance"
-version = "2.0.0"
+version = "2.1.0"
 description = "Gerenciador de finanças pessoais com interface gráfica moderna"
 readme = "README.md"
 license = { file = "LICENSE" }

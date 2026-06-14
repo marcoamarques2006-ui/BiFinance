@@ -82,6 +82,27 @@ col4.metric("Total Proventos",  fin.fmt_brl(fin.total_dividends(txs)))
 
 st.divider()
 
+# ── Orçamento Mensal ──────────────────────────────────────────────────────────
+if not _demo:
+    try:
+        from datetime import date as _date
+
+        budgets = s.load_budgets()
+        if budgets:
+            today = _date.today()
+            st.subheader(f"Orçamento Mensal · {today.month:02d}/{today.year}")
+            for b in fin.budget_status(txs, budgets, today.year, today.month):
+                emoji = {"ok": "🟢", "alerta": "🟡", "estourado": "🔴"}[b["status"]]
+                st.write(
+                    f"{emoji} **{b['category']}** — "
+                    f"{fin.fmt_brl(b['spent'])} de {fin.fmt_brl(b['limit'])} "
+                    f"({b['pct']:.0f}%)"
+                )
+                st.progress(min(1.0, b["pct"] / 100))
+            st.divider()
+    except Exception:
+        pass
+
 # ── Posição em Dólar ──────────────────────────────────────────────────────────
 if entries:
     st.subheader("Posição em Dólar")

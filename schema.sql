@@ -37,6 +37,13 @@ create table if not exists goals (
     color    text not null default '#3b82f6'
 );
 
+-- ── Orçamentos Mensais por Categoria ──────────────────────────────────────────
+create table if not exists budgets (
+    id            text primary key,
+    category      text not null unique,
+    monthly_limit double precision not null
+);
+
 -- ── Configurações (linha única, id fixo = 1) ──────────────────────────────────
 create table if not exists settings (
     id              integer primary key default 1,

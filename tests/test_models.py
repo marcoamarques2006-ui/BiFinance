@@ -6,6 +6,7 @@ from bifinance.models import (
     ASSET_TYPES,
     EXPENSE_CATEGORIES,
     INCOME_CATEGORIES,
+    Budget,
     DollarEntry,
     Goal,
     Settings,
@@ -277,3 +278,53 @@ def test_settings_roundtrip():
 def test_settings_from_empty_dict_uses_defaults():
     s = Settings.from_dict({})
     assert s.cdi_rate == pytest.approx(10.75)
+
+
+# ── Budget ────────────────────────────────────────────────────────────────────
+
+
+def _budget(**kwargs) -> Budget:
+    defaults = dict(category="Alimentação", limit=800.0)
+    return Budget(**{**defaults, **kwargs})
+
+
+def test_budget_defaults_generate_id():
+    b = _budget()
+    assert b.id
+    assert b.category == "Alimentação"
+    assert b.limit == pytest.approx(800.0)
+
+
+def test_budget_roundtrip_uses_monthly_limit_column():
+    original = _budget(category="Lazer", limit=350.0)
+    d = original.to_dict()
+    assert "monthly_limit" in d  # coluna do banco, não "limit"
+    assert "limit" not in d
+    restored = Budget.from_dict(d)
+    assert restored.category == "Lazer"
+    assert restored.limit == pytest.approx(350.0)
+    assert restored.id == original.id
+
+
+def test_budget_validate_ok():
+    _budget().validate()  # não levanta
+
+
+def test_budget_validate_empty_category():
+    with pytest.raises(ValueError, match="vazia"):
+        Budget(category="   ", limit=100.0).validate()
+
+
+def test_budget_validate_invalid_category():
+    with pytest.raises(ValueError, match="inválida"):
+        Budget(category="Criptomoedas", limit=100.0).validate()
+
+
+def test_budget_validate_zero_limit():
+    with pytest.raises(ValueError, match="maior que zero"):
+        _budget(limit=0.0).validate()
+
+
+def test_budget_validate_negative_limit():
+    with pytest.raises(ValueError, match="maior que zero"):
+        _budget(limit=-50.0).validate()

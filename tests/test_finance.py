@@ -4,6 +4,7 @@ import pytest
 
 from bifinance.finance import (
     available_cash,
+    budget_status,
     dollar_summary,
     expenses_by_category,
     fmt_brl,
@@ -13,13 +14,14 @@ from bifinance.finance import (
     monthly_income,
     portfolio_positions,
     small_vices,
+    total_budgeted,
     total_dividends,
     total_invested_cost,
     total_real_expenses,
     total_real_income,
     with_pnl,
 )
-from bifinance.models import DollarEntry, Transaction
+from bifinance.models import Budget, DollarEntry, Transaction
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -355,3 +357,89 @@ def test_fmt_pct_positive():
 def test_fmt_pct_negative():
     result = fmt_pct(-3.2)
     assert result.startswith("-")
+
+
+# ── Orçamento Mensal ──────────────────────────────────────────────────────────
+
+
+def test_total_budgeted_sums_limits():
+    budgets = [Budget(category="Alimentação", limit=800.0),
+               Budget(category="Lazer", limit=200.0)]
+    assert total_budgeted(budgets) == pytest.approx(1000.0)
+
+
+def test_total_budgeted_empty():
+    assert total_budgeted([]) == pytest.approx(0.0)
+
+
+def test_budget_status_empty_returns_empty():
+    assert budget_status([], [], 2026, 1) == []
+
+
+def test_budget_status_ok_when_under_80pct():
+    txs = [_expense(400.0, "2026-01-10", "Alimentação")]
+    budgets = [Budget(category="Alimentação", limit=800.0)]
+    s = budget_status(txs, budgets, 2026, 1)[0]
+    assert s["spent"] == pytest.approx(400.0)
+    assert s["remaining"] == pytest.approx(400.0)
+    assert s["pct"] == pytest.approx(50.0)
+    assert s["status"] == "ok"
+
+
+def test_budget_status_alerta_between_80_and_100():
+    txs = [_expense(720.0, "2026-01-10", "Alimentação")]
+    budgets = [Budget(category="Alimentação", limit=800.0)]
+    s = budget_status(txs, budgets, 2026, 1)[0]
+    assert s["pct"] == pytest.approx(90.0)
+    assert s["status"] == "alerta"
+
+
+def test_budget_status_estourado_above_limit():
+    txs = [_expense(900.0, "2026-01-10", "Alimentação")]
+    budgets = [Budget(category="Alimentação", limit=800.0)]
+    s = budget_status(txs, budgets, 2026, 1)[0]
+    assert s["remaining"] == pytest.approx(-100.0)
+    assert s["pct"] == pytest.approx(112.5)
+    assert s["status"] == "estourado"
+
+
+def test_budget_status_only_counts_selected_month():
+    txs = [
+        _expense(500.0, "2026-01-10", "Alimentação"),
+        _expense(300.0, "2026-02-10", "Alimentação"),
+    ]
+    budgets = [Budget(category="Alimentação", limit=800.0)]
+    s = budget_status(txs, budgets, 2026, 1)[0]
+    assert s["spent"] == pytest.approx(500.0)
+
+
+def test_budget_status_ignores_non_expense_types():
+    txs = [
+        _expense(200.0, "2026-01-10", "Alimentação"),
+        _income(5000.0, "2026-01-05"),
+    ]
+    budgets = [Budget(category="Alimentação", limit=800.0)]
+    s = budget_status(txs, budgets, 2026, 1)[0]
+    assert s["spent"] == pytest.approx(200.0)
+
+
+def test_budget_status_sorted_by_pct_desc():
+    txs = [
+        _expense(750.0, "2026-01-10", "Alimentação"),   # 75%
+        _expense(180.0, "2026-01-11", "Lazer"),         # 90%
+    ]
+    budgets = [
+        Budget(category="Alimentação", limit=1000.0),
+        Budget(category="Lazer", limit=200.0),
+    ]
+    result = budget_status(txs, budgets, 2026, 1)
+    assert result[0]["category"] == "Lazer"
+    assert result[1]["category"] == "Alimentação"
+
+
+def test_budget_status_zero_spent():
+    budgets = [Budget(category="Pets", limit=150.0)]
+    s = budget_status([], budgets, 2026, 1)[0]
+    assert s["spent"] == pytest.approx(0.0)
+    assert s["pct"] == pytest.approx(0.0)
+    assert s["status"] == "ok"

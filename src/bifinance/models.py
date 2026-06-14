@@ -199,6 +199,35 @@ class Goal:
 
 
 @dataclass
+class Budget:
+    """Orçamento mensal de gasto para uma categoria de despesa."""
+
+    category: str
+    limit: float             # teto de gasto mensal (BRL)
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+
+    def to_dict(self) -> dict:
+        # Coluna do banco é "monthly_limit" — "limit" é palavra reservada no SQL/PostgREST.
+        return {"id": self.id, "category": self.category, "monthly_limit": self.limit}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Budget:
+        return cls(
+            id=str(d["id"]),
+            category=str(d["category"]),
+            limit=float(d["monthly_limit"]),
+        )
+
+    def validate(self) -> None:
+        if not self.category.strip():
+            raise ValueError("Categoria não pode ser vazia.")
+        if self.category not in EXPENSE_CATEGORIES:
+            raise ValueError(f"Categoria inválida: {self.category}")
+        if self.limit <= 0:
+            raise ValueError("Limite do orçamento deve ser maior que zero.")
+
+
+@dataclass
 class Settings:
     cdi_rate: float = 10.75
     default_iof_pct: float = 1.1

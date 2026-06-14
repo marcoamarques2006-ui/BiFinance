@@ -2,7 +2,7 @@
 
 import pytest
 
-from bifinance.models import DollarEntry, Goal, Settings, Transaction
+from bifinance.models import Budget, DollarEntry, Goal, Settings, Transaction
 from bifinance.storage import Storage
 from tests.fake_supabase import FakeSupabaseClient
 
@@ -191,6 +191,51 @@ def test_prices_overwrite(storage):
     assert "VALE3" in loaded
 
 
+# ── Budgets ───────────────────────────────────────────────────────────────────
+
+
+def _budget(**kwargs) -> Budget:
+    defaults = dict(category="Alimentação", limit=800.0)
+    return Budget(**{**defaults, **kwargs})
+
+
+def test_budgets_load_empty(storage):
+    assert storage.load_budgets() == []
+
+
+def test_budget_add_and_load(storage):
+    storage.add_budget(_budget(category="Lazer", limit=300.0))
+    loaded = storage.load_budgets()
+    assert len(loaded) == 1
+    assert loaded[0].category == "Lazer"
+    assert loaded[0].limit == pytest.approx(300.0)
+
+
+def test_budget_one_per_category_overwrites(storage):
+    storage.add_budget(_budget(category="Alimentação", limit=800.0))
+    storage.add_budget(_budget(category="Alimentação", limit=1000.0))
+    loaded = storage.load_budgets()
+    assert len(loaded) == 1
+    assert loaded[0].limit == pytest.approx(1000.0)
+
+
+def test_budget_remove_existing(storage):
+    b = _budget()
+    storage.add_budget(b)
+    assert storage.remove_budget(b.id) is True
+    assert storage.load_budgets() == []
+
+
+def test_budget_remove_nonexistent(storage):
+    assert storage.remove_budget("id-inexistente") is False
+
+
+def test_budget_invalid_not_persisted(storage):
+    with pytest.raises(ValueError):
+        storage.add_budget(_budget(limit=-1.0))
+    assert storage.load_budgets() == []
+
+
 # ── Isolation: different collections don't interfere ─────────────────────────
 
 
@@ -198,6 +243,8 @@ def test_collections_isolated(storage):
     storage.add_transaction(_tx(description="TX"))
     storage.add_dollar_entry(_dollar(description="USD"))
     storage.add_goal(_goal(name="Meta"))
+    storage.add_budget(_budget(category="Pets", limit=120.0))
     assert len(storage.load_transactions()) == 1
     assert len(storage.load_dollar_entries()) == 1
     assert len(storage.load_goals()) == 1
+    assert len(storage.load_budgets()) == 1
