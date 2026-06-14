@@ -1,0 +1,5 @@
+customtkinter>=5.2.2
+matplotlib>=3.8
+requests>=2.31
+supabase>=2.0
+streamlit>=1.35
