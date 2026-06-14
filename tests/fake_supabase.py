@@ -15,6 +15,8 @@ class _Query:
         self._payload: object = None
         self._eq: dict = {}
         self._neq: dict = {}
+        self._order_col: str | None = None
+        self._order_desc: bool = False
 
     def select(self, *_args: object) -> "_Query":
         self._op = "select"
@@ -47,6 +49,11 @@ class _Query:
         self._neq[col] = val
         return self
 
+    def order(self, col: str, *, desc: bool = False) -> "_Query":
+        self._order_col = col
+        self._order_desc = desc
+        return self
+
     def _matches(self, row: dict) -> bool:
         for k, v in self._eq.items():
             if row.get(k) != v:
@@ -58,7 +65,14 @@ class _Query:
 
     def execute(self) -> _Response:
         if self._op == "select":
-            return _Response([r for r in self._store if self._matches(r)])
+            rows = [r for r in self._store if self._matches(r)]
+            if self._order_col:
+                rows = sorted(
+                    rows,
+                    key=lambda r: r.get(self._order_col, ""),
+                    reverse=self._order_desc,
+                )
+            return _Response(rows)
 
         if self._op == "insert":
             rows = self._payload if isinstance(self._payload, list) else [self._payload]
