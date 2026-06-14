@@ -1,5 +1,6 @@
 -- BiFinance — Migração: tabela de Orçamentos Mensais (feature v2.1.0)
--- Execute no SQL Editor do Supabase em bancos já existentes.
+-- Execute APENAS este script no SQL Editor do Supabase em bancos já existentes.
+-- É idempotente: pode rodar mais de uma vez sem erro.
 
 create table if not exists budgets (
     id            text primary key,
@@ -7,4 +8,7 @@ create table if not exists budgets (
     monthly_limit double precision not null
 );
 
-alter table budgets disable row level security;
+alter table budgets enable row level security;
+
+drop policy if exists "allow_all" on budgets;
+create policy "allow_all" on budgets for all using (true) with check (true);
