@@ -7,6 +7,21 @@ e este projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.1.0] — 2026-06-14
+
+### Adicionado
+- **Orçamento Mensal por Categoria** — defina um teto de gasto para cada categoria de despesa
+- Nova tabela `budgets` no Supabase (script `migration_budgets.sql` para bancos existentes)
+- Modelo `Budget` com validação (categoria válida + limite positivo)
+- `finance.budget_status()` — compara gasto real do mês vs. limite, com status `ok` / `alerta` / `estourado`
+- `finance.total_budgeted()` — soma de todos os limites definidos
+- CRUD de orçamentos no `Storage` (`load_budgets`, `add_budget`, `remove_budget`) — um teto por categoria
+- Nova view "🧮 Orçamento" na navegação, com barras de progresso coloridas por status
+- Seção de Orçamento no dashboard web (Streamlit)
+- 23 novos testes (124 no total); cobertura subiu para ~94%
+
+---
+
 ## [2.0.0] — 2026-06-14
 
 ### Adicionado

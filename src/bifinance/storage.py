@@ -6,7 +6,7 @@ import os
 
 from supabase import Client, create_client
 
-from bifinance.models import DollarEntry, Goal, Settings, Transaction
+from bifinance.models import Budget, DollarEntry, Goal, Settings, Transaction
 
 
 class Storage:
@@ -72,6 +72,22 @@ class Storage:
 
     def remove_goal(self, goal_id: str) -> bool:
         res = self._db.table("goals").delete().eq("id", goal_id).execute()
+        return len(res.data) > 0
+
+    # ── Budgets ───────────────────────────────────────────────────────────────
+
+    def load_budgets(self) -> list[Budget]:
+        res = self._db.table("budgets").select("*").execute()
+        return [Budget.from_dict(r) for r in res.data]
+
+    def add_budget(self, budget: Budget) -> None:
+        budget.validate()
+        # Substitui o orçamento existente da mesma categoria (uma categoria, um teto)
+        self._db.table("budgets").delete().eq("category", budget.category).execute()
+        self._db.table("budgets").insert(budget.to_dict()).execute()
+
+    def remove_budget(self, budget_id: str) -> bool:
+        res = self._db.table("budgets").delete().eq("id", budget_id).execute()
         return len(res.data) > 0
 
     # ── Settings ──────────────────────────────────────────────────────────────

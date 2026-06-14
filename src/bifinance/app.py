@@ -13,6 +13,7 @@ from bifinance.models import TX_COLORS, TX_ICONS, TX_LABELS, Transaction
 from bifinance.storage import Storage
 from bifinance.theme import NAV, C, _tint
 from bifinance.views import (
+    budgets,
     dashboard,
     dollar,
     goals,
@@ -122,6 +123,7 @@ class BiFinanceApp(ctk.CTk):
         "investments":  "Investimentos",
         "dollar":       "Dólar",
         "goals":        "Metas",
+        "budgets":      "Orçamento",
         "reports":      "Relatórios",
         "settings":     "Configurações",
     }
@@ -132,6 +134,7 @@ class BiFinanceApp(ctk.CTk):
         "investments":  investments,
         "dollar":       dollar,
         "goals":        goals,
+        "budgets":      budgets,
         "reports":      reports,
         "settings":     settings_view,
     }

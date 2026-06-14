@@ -1,7 +1,7 @@
 # BiFinance 💰
 
 ![CI](https://github.com/marcoamarques2006-ui/BiFinance/actions/workflows/ci.yml/badge.svg)
-![Versão](https://img.shields.io/badge/versão-2.0.0-blue)
+![Versão](https://img.shields.io/badge/versão-2.1.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-green)
 ![Licença](https://img.shields.io/badge/licença-MIT-orange)
 ![Banco](https://img.shields.io/badge/banco-Supabase-3ECF8E)
@@ -32,6 +32,7 @@ Jovens adultos, estudantes e famílias que querem controlar gastos, investimento
 - **Investimentos** — carteira com custo médio ponderado, P&L não realizado e atualização de preço por ativo
 - **Dólar** — registro de compras em USD com IOF + spread, custo médio efetivo e P&L vs. taxa atual
 - **Metas** — criação e acompanhamento de metas financeiras com barra de progresso
+- **Orçamento Mensal** — teto de gasto por categoria com alertas visuais (`ok` / `alerta` / `estourado`)
 - **Relatórios** — saldo acumulado, histórico mensal e análise de "pequenos vícios" com projeção anual
 - **Configurações** — taxa CDI e IOF padrão configuráveis
 - Dados persistidos em **Supabase (PostgreSQL na nuvem)**
@@ -184,10 +185,10 @@ BiFinance/
 │       ├── app.py              # Interface gráfica customtkinter (7 views)
 │       ├── charts.py           # Gráficos matplotlib
 │       ├── finance.py          # Lógica de negócio e cálculos financeiros
-│       ├── models.py           # Modelos de dados (Transaction, Goal, Settings…)
+│       ├── models.py           # Modelos de dados (Transaction, Goal, Budget…)
 │       ├── storage.py          # Persistência Supabase (PostgreSQL)
 │       ├── theme.py            # Design tokens e estrutura de navegação
-│       └── views/              # Módulos de interface (dashboard, transações…)
+│       └── views/              # Módulos de interface (dashboard, orçamento…)
 ├── tests/
 │   ├── fake_supabase.py        # Cliente Supabase in-memory para testes
 │   ├── test_finance.py         # 41 testes de lógica financeira
@@ -197,6 +198,7 @@ BiFinance/
 ├── .env.example                # Template de variáveis de ambiente
 ├── schema.sql                  # Schema do banco de dados Supabase
 ├── schema_rls.sql              # Políticas de acesso Row Level Security
+├── migration_budgets.sql       # Migração: tabela de orçamentos (v2.1.0)
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -212,7 +214,7 @@ BiFinance/
 
 ## Versão
 
-**2.0.0** — ver [CHANGELOG.md](CHANGELOG.md)
+**2.1.0** — ver [CHANGELOG.md](CHANGELOG.md)
 
 ## Equipe
 

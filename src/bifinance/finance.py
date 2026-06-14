@@ -17,6 +17,7 @@ from bifinance.models import (
     INVESTMENT_MOVES,
     REAL_EXPENSE,
     REAL_INCOME,
+    Budget,
     DollarEntry,
     Transaction,
 )
@@ -200,6 +201,52 @@ def dollar_summary(entries: list[DollarEntry], current_rate: float = 0.0) -> dic
         "pnl": pnl,
         "pnl_pct": pnl_pct,
     }
+
+
+# ── Orçamento Mensal ──────────────────────────────────────────────────────────
+
+def budget_status(
+    txs: list[Transaction],
+    budgets: list[Budget],
+    year: int,
+    month: int,
+) -> list[dict]:
+    """
+    Compara o gasto real de cada categoria no mês com o orçamento definido.
+
+    Retorna lista com {category, limit, spent, remaining, pct, status},
+    onde status ∈ {"ok", "alerta", "estourado"}:
+      - "ok"        → gasto até 80% do limite
+      - "alerta"    → gasto entre 80% e 100% do limite
+      - "estourado" → gasto acima do limite
+
+    Ordena pelo maior percentual de uso (categorias mais críticas primeiro).
+    """
+    spent_by_cat = expenses_by_category(txs, year, month)
+    result = []
+    for b in budgets:
+        spent = spent_by_cat.get(b.category, 0.0)
+        pct = spent / b.limit * 100 if b.limit > 0 else 0.0
+        if pct > 100:
+            status = "estourado"
+        elif pct >= 80:
+            status = "alerta"
+        else:
+            status = "ok"
+        result.append({
+            "category":  b.category,
+            "limit":     b.limit,
+            "spent":     spent,
+            "remaining": b.limit - spent,
+            "pct":       pct,
+            "status":    status,
+        })
+    return sorted(result, key=lambda x: -x["pct"])
+
+
+def total_budgeted(budgets: list[Budget]) -> float:
+    """Soma de todos os limites de orçamento definidos."""
+    return sum(b.limit for b in budgets)
 
 
 # ── Pequenos Vícios ───────────────────────────────────────────────────────────

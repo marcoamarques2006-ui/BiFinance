@@ -30,6 +30,7 @@ NAV = [
     ]),
     ("PLANEJAMENTO", [
         ("goals",    "🎯  Metas"),
+        ("budgets",  "🧮  Orçamento"),
         ("reports",  "📋  Relatórios"),
     ]),
     ("SISTEMA", [
