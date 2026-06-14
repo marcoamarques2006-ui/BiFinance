@@ -4,10 +4,11 @@
 ![Versão](https://img.shields.io/badge/versão-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.11+-green)
 ![Licença](https://img.shields.io/badge/licença-MIT-orange)
+![Banco](https://img.shields.io/badge/banco-Supabase-3ECF8E)
 
 **🌐 Deploy (versão web):** [bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app](https://bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app)
 
-**Gerenciador de finanças pessoais com interface gráfica moderna.**
+**Gerenciador de finanças pessoais com interface gráfica moderna e banco de dados na nuvem.**
 
 ---
 
@@ -17,7 +18,7 @@ Milhões de brasileiros têm dificuldade de acompanhar para onde vai o dinheiro 
 
 ## Solução
 
-O **BiFinance** é uma aplicação desktop leve que permite registrar, categorizar e visualizar receitas, despesas e investimentos em segundos — sem internet, sem cadastro, com dados armazenados localmente.
+O **BiFinance** é uma aplicação que permite registrar, categorizar e visualizar receitas, despesas e investimentos em segundos. Os dados ficam persistidos em um banco de dados PostgreSQL na nuvem (Supabase), acessíveis de qualquer dispositivo.
 
 ## Público-alvo
 
@@ -32,20 +33,21 @@ Jovens adultos, estudantes e famílias que querem controlar gastos, investimento
 - **Metas** — criação e acompanhamento de metas financeiras com barra de progresso
 - **Relatórios** — saldo acumulado, histórico mensal e análise de "pequenos vícios" com projeção anual
 - **Configurações** — taxa CDI e IOF padrão configuráveis
-- Dados persistidos localmente em JSON (`~/.bifinance/data.json`)
+- Dados persistidos em **Supabase (PostgreSQL na nuvem)**
 
 ## Tecnologias
 
-| Ferramenta       | Uso                          |
-|------------------|------------------------------|
-| Python 3.11+     | Linguagem principal          |
-| customtkinter    | Interface gráfica moderna    |
-| matplotlib       | Gráficos e visualizações     |
-| requests         | Consumo de API (cotação USD) |
-| streamlit        | Dashboard web (deploy)       |
-| pytest           | Testes automatizados         |
-| ruff             | Linting e análise estática   |
-| GitHub Actions   | Integração contínua (CI)     |
+| Ferramenta       | Uso                               |
+|------------------|-----------------------------------|
+| Python 3.11+     | Linguagem principal               |
+| customtkinter    | Interface gráfica moderna         |
+| matplotlib       | Gráficos e visualizações          |
+| requests         | Consumo de API (cotação USD)      |
+| supabase-py      | Banco de dados PostgreSQL (nuvem) |
+| streamlit        | Dashboard web (deploy)            |
+| pytest           | Testes automatizados              |
+| ruff             | Linting e análise estática        |
+| GitHub Actions   | Integração contínua (CI)          |
 
 ---
 
@@ -55,6 +57,7 @@ Jovens adultos, estudantes e famílias que querem controlar gastos, investimento
 
 - Python 3.11 ou superior
 - pip
+- Conta no [Supabase](https://supabase.com) com projeto configurado
 
 ### Passos
 
@@ -72,11 +75,31 @@ source .venv/bin/activate      # Linux/macOS
 pip install -e .
 ```
 
+### Configuração do Banco de Dados
+
+1. Crie um projeto no [Supabase](https://supabase.com)
+2. Execute o script `schema.sql` no SQL Editor do Supabase
+3. Execute o script `schema_rls.sql` para configurar as políticas de acesso
+4. Copie `.env.example` para `.env` e preencha com suas credenciais:
+
+```bash
+cp .env.example .env
+```
+
+```env
+SUPABASE_URL=https://<seu-projeto>.supabase.co
+SUPABASE_KEY=<sua-anon-key>
+```
+
 ---
 
 ## Execução
 
 ```bash
+# Exportar variáveis de ambiente (Windows PowerShell)
+$env:SUPABASE_URL="https://seu-projeto.supabase.co"
+$env:SUPABASE_KEY="sua-anon-key"
+
 # Via comando instalado
 bifinance
 
@@ -90,9 +113,9 @@ python -m bifinance
 
 ```bash
 # Instale as dependências de desenvolvimento
-pip install -e ".[dev]"
+pip install -e ".[dev]" supabase
 
-# Execute os testes
+# Execute os testes (usa banco in-memory — sem necessidade de credenciais)
 pytest
 ```
 
@@ -110,12 +133,6 @@ Saída esperada:
 ruff check .
 ```
 
-Para corrigir automaticamente problemas de formatação:
-
-```bash
-ruff check . --fix
-```
-
 ---
 
 ## Deploy
@@ -124,7 +141,9 @@ A versão web do BiFinance está publicada em:
 
 **[bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app](https://bifinance-nahy8rhsn9xstsgzzdmdup.streamlit.app)**
 
-Exibe a cotação USD/BRL em tempo real (via [AwesomeAPI](https://economia.awesomeapi.com.br)) e o resumo financeiro. Para rodar o dashboard localmente:
+Exibe cotação USD/BRL em tempo real e o resumo financeiro com dados reais do Supabase.
+
+Para rodar o dashboard localmente:
 
 ```bash
 pip install -r requirements-web.txt
@@ -151,13 +170,16 @@ BiFinance/
 │       ├── charts.py           # Gráficos matplotlib
 │       ├── finance.py          # Lógica de negócio e cálculos
 │       ├── models.py           # Modelos de dados
-│       └── storage.py          # Persistência JSON
+│       └── storage.py          # Persistência Supabase
 ├── tests/
+│   ├── fake_supabase.py        # Cliente Supabase in-memory para testes
 │   ├── test_finance.py         # 41 testes de lógica financeira
 │   ├── test_integration.py     # 3 testes de integração (API)
 │   ├── test_models.py          # 35 testes de modelos
 │   └── test_storage.py         # 22 testes de persistência
-├── .gitignore
+├── .env.example                # Template de variáveis de ambiente
+├── schema.sql                  # Schema do banco Supabase
+├── schema_rls.sql              # Políticas de acesso RLS
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -165,7 +187,7 @@ BiFinance/
 ├── VERSION
 ├── pyproject.toml
 ├── requirements.txt
-├── requirements-web.txt        # Dependências para deploy web
+├── requirements-web.txt
 └── streamlit_app.py            # Dashboard web (Streamlit)
 ```
 
@@ -175,9 +197,11 @@ BiFinance/
 
 **1.0.0** — ver [CHANGELOG.md](CHANGELOG.md)
 
-## Autor
+## Equipe
 
-Marco Antonio Marques Monte — [marcoamarques2006@gmail.com](mailto:marcoamarques2006@gmail.com)
+| Nome | Matrícula |
+|------|-----------|
+| Marco Antonio Marques Monte | — |
 
 ## Repositório
 
