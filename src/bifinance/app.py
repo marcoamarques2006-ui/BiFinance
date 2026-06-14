@@ -211,6 +211,10 @@ class BiFinanceApp(ctk.CTk):
             meta += f" · {t.ticker.upper()}"
         if t.is_recurring:
             meta += " · 🔁 Recorrente"
+            self._lbl(info, meta, size=11, color=C["muted"]).grid(row=1, column=0, sticky="w")
+        if t.notes:
+            self._lbl(info, f"📝 {t.notes}", size=10, color=C["muted"]).grid(
+                row=2, column=0, sticky="w")
         self._lbl(info, meta, size=11, color=C["muted"]).grid(row=1, column=0, sticky="w")
 
         self._lbl(rf, t.date, size=11, color=C["muted"], mono=True).grid(
