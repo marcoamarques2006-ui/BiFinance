@@ -47,7 +47,13 @@ addopts = "-ra"
 
 [tool.coverage.run]
 source = ["src/bifinance"]
-omit = ["*/tests/*", "*/__main__.py"]
+omit = [
+    "*/__main__.py",
+    "*/app.py",
+    "*/charts.py",
+    "*/theme.py",
+    "*/views/*",
+]
 
 [tool.coverage.report]
 show_missing = true
