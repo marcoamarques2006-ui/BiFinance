@@ -86,6 +86,14 @@ def render(app) -> None:
                           border_color=C["border"], fg_color=C["card"],
                           text_color=C["text"], placeholder_text="TICKER")
 
+    notes_lbl = ctk.CTkLabel(form_card, text="Notas (opcional)",
+                              font=ctk.CTkFont(size=11, weight="bold"), text_color=C["text"])
+    notes_lbl.grid(row=5, column=0, columnspan=6, sticky="w", padx=12, pady=(10, 3))
+    notes_e = ctk.CTkEntry(form_card, height=36, corner_radius=6,
+                            border_color=C["border"], fg_color=C["card"],
+                            text_color=C["text"], placeholder_text="Observações sobre esta transação…")
+    notes_e.grid(row=6, column=0, columnspan=6, sticky="ew", padx=12, pady=(0, 4))
+
     msg = ctk.CTkLabel(form_card, text="", font=ctk.CTkFont(size=11), text_color=C["red"])
 
     def _on_type_change(val: str) -> None:
@@ -134,11 +142,13 @@ def render(app) -> None:
                 is_recurring=recurring_var.get(),
                 ticker=ticker_val,
                 quantity=qty_val,
+                notes=notes_e.get().strip() or None,
             )
             tx.validate()
             app._s.add_transaction(tx)
             desc_e.delete(0, "end")
             amount_e.delete(0, "end")
+            notes_e.delete(0, "end")
             msg.configure(text="Transação adicionada.", text_color=C["green"])
         except ValueError as exc:
             msg.configure(text=str(exc), text_color=C["red"])
