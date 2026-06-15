@@ -221,6 +221,9 @@ BiFinance/
 | Nome | Matrícula |
 |------|-----------|
 | Marco Antonio Marques Monte | 22503865 |
+| Rafaela Abranches Castilho Gregory | 22509362 |
+| Maria Eduarda Diniz Coelho da Fonseca | 22501883 |
+
 
 ## Repositório
 
