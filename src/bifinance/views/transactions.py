@@ -85,7 +85,7 @@ def render(app) -> None:
     ctx_e = ctk.CTkEntry(form_card, height=36, corner_radius=6,
                           border_color=C["border"], fg_color=C["card"],
                           text_color=C["text"], placeholder_text="TICKER")
-    
+
     notes_lbl = ctk.CTkLabel(form_card, text="Notas (opcional)",
                               font=ctk.CTkFont(size=11, weight="bold"), text_color=C["text"])
     notes_lbl.grid(row=5, column=0, columnspan=6, sticky="w", padx=12, pady=(10, 3))
