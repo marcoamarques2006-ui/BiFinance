@@ -83,8 +83,9 @@ if not _connected():
 s = get_storage()
 
 
-@st.cache_data(ttl=30)
 def load_all() -> dict:
+    # Sem cache: os modelos não são serializáveis pelo st.cache_data e as
+    # leituras do Supabase são rápidas. Cada execução reflete o estado atual.
     return {
         "txs": s.load_transactions(),
         "entries": s.load_dollar_entries(),
@@ -96,7 +97,7 @@ def load_all() -> dict:
 
 
 def _refresh() -> None:
-    load_all.clear()
+    pass  # nada a limpar — leitura é sempre ao vivo
 
 
 try:
