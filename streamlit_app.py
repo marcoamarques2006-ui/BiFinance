@@ -34,11 +34,19 @@ from bifinance.storage import Storage
 st.set_page_config(page_title="BiFinance", page_icon="💰", layout="wide")
 
 # ── Credenciais Supabase via st.secrets ────────────────────────────────────────
-try:
-    os.environ.setdefault("SUPABASE_URL", st.secrets.get("SUPABASE_URL", ""))
-    os.environ.setdefault("SUPABASE_KEY", st.secrets.get("SUPABASE_KEY", ""))
-except Exception:
-    pass
+def _secret(name: str) -> str:
+    """Lê o secret do Streamlit; cai para variável de ambiente local (.env)."""
+    try:
+        val = st.secrets.get(name, "")
+    except Exception:
+        val = ""
+    return val or os.environ.get(name, "")
+
+
+# Sempre sobrescreve (não usa setdefault) para refletir mudanças de secret sem
+# precisar reiniciar manualmente o processo.
+os.environ["SUPABASE_URL"] = _secret("SUPABASE_URL")
+os.environ["SUPABASE_KEY"] = _secret("SUPABASE_KEY")
 
 
 @st.cache_resource
